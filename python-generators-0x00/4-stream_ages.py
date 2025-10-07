@@ -1,33 +1,39 @@
-#!/usr/bin/env python3
-import seed
+#!/usr/bin/python3
+seed = __import__('seed')
+
 
 def stream_user_ages():
     """
-    Generator that yields one user age at a time from user_data.
+    Generator that yields one user age at a time from the database.
     """
-    conn = seed.connect_to_prodev()
-    cursor = conn.cursor(dictionary=True)
+    connection = seed.connect_to_prodev()
+    cursor = connection.cursor(dictionary=True)
     cursor.execute("SELECT age FROM user_data")
 
+    # Yield one age at a time (memory-efficient)
     for row in cursor:
         yield row['age']
 
-    cursor.close()
-    conn.close()
+    connection.close()
 
-def main():
+
+def average_age():
     """
-    Compute and print the average age using the age-stream generator.
+    Calculates the average age using the generator without loading all users into memory.
     """
-    total = 0
+    total_age = 0
     count = 0
+
     for age in stream_user_ages():
-        total += age
+        total_age += age
         count += 1
 
-    average = total / count if count else 0
-    print(f"Average age of users: {average}")
+    if count == 0:
+        print("No users found.")
+    else:
+        average = total_age / count
+        print(f"Average age of users: {average:.2f}")
 
-if __name__ == '__main__':
-    main()
-gut
+
+if __name__ == "__main__":
+    average_age()

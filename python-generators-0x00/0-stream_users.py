@@ -1,33 +1,17 @@
-#!/usr/bin/env python3
-import mysql.connector
-from mysql.connector import Error
+#!/usr/bin/python3
+seed = __import__('seed')
 
-# Database configuration
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '',  # Update with your MySQL password
-    'charset': 'utf8mb4',
-    'collation': 'utf8mb4_unicode_ci'
-}
-
-DB_NAME = 'ALX_prodev'
-TABLE_NAME = 'user_data'
 
 def stream_users():
     """
-    Generator that yields one user record at a time from the configured table.
+    Generator that fetches rows one by one from the user_data table.
     """
-    conn = None
-    cursor = None
-    try:
-        conn = mysql.connector.connect(database=DB_NAME, **DB_CONFIG)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(f"SELECT * FROM {TABLE_NAME}")
-        for row in cursor:
-            yield row
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+    connection = seed.connect_to_prodev()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM user_data")
+
+    # Use one loop only
+    for row in cursor:
+        yield row
+
+    connection.close()
